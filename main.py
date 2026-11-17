@@ -27,7 +27,7 @@ class MatrixHandler :
     except (aiohttp.ClientConnectionError, aiohttp.ServerTimeoutError) as e:
         raise MatrixFetchError(f"Сетевая ошибка: {e}") from e 
   
-  async def parse_matrix(self , text_matrix:str) :
+  async def parse_matrix(self , text_matrix:str) -> List[List[int]]:
     matrix = []
     for line in text_matrix.splitlines():
         line = line.strip()
@@ -40,13 +40,48 @@ class MatrixHandler :
               matrix.append([int(n)])
     return matrix
 
+
+
+
+
   async def traversal_matrix(self , matrix: List[List[int]]) -> List[int] :
-    pass
+    if not matrix:
+      return []
+    result = []
+    top, bottom = 0, len(matrix) - 1
+    left, right = 0, len(matrix[0]) - 1
+
+    while top <= bottom and left <= right:
+        #левый столбец
+        for i in range(top, bottom + 1):
+            result.append(matrix[i][left])
+        left += 1
+
+        # нижняя строка
+        for j in range(left, right + 1):
+            result.append(matrix[bottom][j])
+        bottom -= 1
+
+        # правый столбец
+        if left <= right:
+            for i in range(bottom, top - 1, -1):
+                result.append(matrix[i][right])
+            right -= 1
+
+        # верхняя строка
+        if top <= bottom:
+            for j in range(right, left - 1, -1):
+                result.append(matrix[top][j])
+            top += 1
+
+    return result
     
   
 
 
 async def get_matrix(url:str) -> List[int] :
-    
-    pass
+    matrix_obj = MatrixHandler(url)
+    text = await matrix_obj.fetch_matrix()
+    matrix = await matrix_obj.parse_matrix(text)
+    return await matrix_obj.traversal_matrix(matrix)
   
