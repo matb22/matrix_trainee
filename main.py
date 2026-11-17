@@ -1,5 +1,5 @@
 from typing import List
-
+import asyncio
 import aiohttp
 import re
 
@@ -36,8 +36,7 @@ class MatrixHandler :
         # берём числа из строки
         numbers = re.findall(r'\d+', line)
         if numbers:
-            for n in numbers :
-              matrix.append([int(n)])
+            matrix.append([int(n) for n in numbers])
     return matrix
 
 
@@ -84,4 +83,15 @@ async def get_matrix(url:str) -> List[int] :
     text = await matrix_obj.fetch_matrix()
     matrix = await matrix_obj.parse_matrix(text)
     return await matrix_obj.traversal_matrix(matrix)
+
+
+
+async def main():
+    SOURCE_URL = 'https://raw.githubusercontent.com/avito-tech/python-trainee-assignment/main/matrix.txt'
+    result = await get_matrix(SOURCE_URL)
+    print("Получено:", result)
+    
+
+if __name__ == "__main__":
+    asyncio.run(main())
   
